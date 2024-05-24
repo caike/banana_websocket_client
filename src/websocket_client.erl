@@ -136,8 +136,10 @@ start_link(FsmName, URL, Handler, HandlerArgs, Opts) when is_list(Opts) ->
             Port = maps:get(port, Parsed, default_scheme_port(Scheme)),
             FormattedPath = path(Parsed) ++ query_string(Parsed),
             InitArgs = [list_to_atom(Scheme), Host, Port, FormattedPath, Handler, HandlerArgs, Opts],
-            % FsmOpts = [{debug, [log, trace]}],
-            FsmOpts = [],
+            FsmOpts = case Opts of
+                [] -> [];
+                _ -> Opts
+            end,
             fsm_start_link(FsmName, InitArgs, FsmOpts);
 
         {error, _, _} = Error ->
