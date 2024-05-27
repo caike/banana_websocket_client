@@ -367,6 +367,9 @@ connected(cast, {cast_frame, Frame}, #context{wsreq=WSReq}=Context) ->
     end;
 connected({call, From}, {send, Frame}, #context{wsreq=WSReq}) ->
     {keep_state_and_data, {reply, From, encode_and_send(Frame, WSReq)}};
+% Allow clients to read handler state
+connected({call, From}, get_handler_state, #context{handler={_Module, HState}}) ->
+    {keep_state_and_data, {reply, From, HState}};
 connected({call, From}, _Event, _Context) ->
     {keep_state_and_data, {reply, From, {error, unhandled_sync_event}}}.
 
@@ -455,7 +458,7 @@ handle_keepalive(KAState, #context{ wsreq=WSReq, ka_attempts=KAAttempts }=Contex
                 % {error, _} = Reason ->
                 %     disconnect(Reason, Context)
             % end
-                    
+
     end.
 
 -spec handle_info(Info :: term(), #context{}) ->
