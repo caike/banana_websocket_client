@@ -328,7 +328,12 @@ disconnected({call, From}, connect, Context0) ->
             Other
     end;
 disconnected({call, From}, _, _) ->
-    {keep_state_and_data, {reply, From, {error, unhandled_sync_event}}}.
+    {keep_state_and_data, {reply, From, {error, unhandled_sync_event}}};
+disconnected(cast, {cast_frame, _From}, Context) ->
+    % Can't send frames when disconnected so we'll disconnect from
+    % remote and remain on disconnected state.
+    disconnect({remote, closed}, Context),
+    {keep_state, Context}.
 
 connected({timeout, connect}, connect, _Context) ->
     keep_state_and_data;
