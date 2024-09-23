@@ -406,20 +406,19 @@ handshaking(info, {Trans, _Socket, Data},
         {notfound, _} ->
             {next_state, handshaking, Context#context{buffer=MaybeHandshakeResp}};
         {ok, Remaining} ->
-            {ok, HState2, KeepAlive} =
-                case Handler:onconnect(WSReq1, HState0) of
-                    {ok, HState1} ->
-                        KA = websocket_req:keepalive(WSReq1),
-                        {ok, HState1, KA};
-                    {ok, _HS1, KA}=Result ->
-                        erlang:send_after(KA, self(), keepalive),
-                        Result
-                end,
-            WSReq2 = websocket_req:keepalive(KeepAlive, WSReq1),
-            handle_websocket_frame(Remaining, Context#context{
-                                                wsreq=WSReq2,
-                                                handler={Handler, HState2},
-                                                buffer= <<>>})
+            case Handler:onconnect(WSReq1, HState0) of
+                {ok, HState1} ->
+                    KA = websocket_req:keepalive(WSReq1),
+                    handle_successful_handshake(Remaining, Context, HState1, KA);
+                {ok, HState1, KA} ->
+                    erlang:send_after(KA, self(), keepalive),
+                    handle_successful_handshake(Remaining, Context, HState1, KA);
+                {reconnect, Interval, HState1} ->
+                    % Allows "bailing" from handshake and reconnecting if client
+                    % determines that connection is not properly established.
+                    {next_state, disconnected, Context#context{handler={Handler, HState1}},
+                    {{timeout, connect}, Interval, connect}}
+                end
     end;
 handshaking(info, Msg, Context) ->
     handle_info(Msg, Context);
@@ -427,6 +426,14 @@ handshaking({call, From}, _Event, _Context) ->
     {keep_state_and_data, {reply, From, {error, unhandled_sync_event}}};
 handshaking(_EType, _Event, _Context) ->
     keep_state_and_data.
+
+handle_successful_handshake(Remaining, Context, HState, KeepAlive) ->
+    #context{wsreq=WSReq1, handler={Handler, _}} = Context,
+    WSReq2 = websocket_req:keepalive(KeepAlive, WSReq1),
+    handle_websocket_frame(Remaining, Context#context{
+                                        wsreq=WSReq2,
+                                        handler={Handler, HState},
+                                        buffer= <<>>}).
 
 -spec handle_event(EventType::gen_statem:event_type(),
                    Event::term(),
@@ -460,7 +467,7 @@ handle_keepalive(KAState, #context{ wsreq=WSReq, ka_attempts=KAAttempts }=Contex
                 % {error, _} = Reason ->
                 %     disconnect(Reason, Context)
             % end
-                    
+
     end.
 
 -spec handle_info(Info :: term(), #context{}) ->
