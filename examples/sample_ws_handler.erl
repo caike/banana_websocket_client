@@ -1,6 +1,6 @@
 -module(sample_ws_handler).
 
--behaviour(websocket_client).
+-behaviour(banana_websocket_client).
 
 -export([
          start_link/0,
@@ -15,13 +15,13 @@
 start_link() ->
     crypto:start(),
     ssl:start(),
-    websocket_client:start_link("wss://echo.websocket.org", ?MODULE, []).
+    banana_websocket_client:start_link("wss://echo.websocket.org", ?MODULE, []).
 
 init([]) ->
     {once, 2}.
 
 onconnect(_WSReq, State) ->
-    websocket_client:cast(self(), {text, <<"message 1">>}),
+    banana_websocket_client:cast(self(), {text, <<"message 1">>}),
     {ok, State}.
 
 ondisconnect({remote, closed}, State) ->

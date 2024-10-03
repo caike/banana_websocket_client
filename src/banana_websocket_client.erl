@@ -1,7 +1,8 @@
 %% @author Jeremy Ong
 %% @author Michael Coles
+%% @author Carlos Souza
 %% @doc Erlang websocket client (FSM implementation)
--module(websocket_client).
+-module(banana_websocket_client).
 
 -behaviour(gen_statem).
 %-compile([export_all]).

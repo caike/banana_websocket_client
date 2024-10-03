@@ -1,6 +1,6 @@
 -module(reconnect_interval_client).
 
--behaviour(websocket_client).
+-behaviour(banana_websocket_client).
 
 -export([
          start_link/1,
@@ -22,7 +22,7 @@
          }).
 
 start_link(Url) ->
-    {ok, _} = websocket_client:start_link(Url, ?MODULE, [self()]).
+    {ok, _} = banana_websocket_client:start_link(Url, ?MODULE, [self()]).
 
 stop(Pid) ->
     Pid ! stop.

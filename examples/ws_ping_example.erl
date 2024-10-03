@@ -1,6 +1,6 @@
 -module(ws_ping_example).
 
--behaviour(websocket_client).
+-behaviour(banana_websocket_client).
 
 -export([
          start_link/0,
@@ -17,13 +17,13 @@ start_link() ->
 start_link(URI) ->
     crypto:start(),
     ssl:start(),
-    websocket_client:start_link(URI, ?MODULE, []).
+    banana_websocket_client:start_link(URI, ?MODULE, []).
 
 init([]) ->
     {once, 1}.
 
 onconnect(_WSReq, 1) ->
-    websocket_client:cast(self(), {text, <<"message 1">>}),
+    banana_websocket_client:cast(self(), {text, <<"message 1">>}),
     %% Execute a ping every 1000 milliseconds
     {ok, 2, 1000}.
 

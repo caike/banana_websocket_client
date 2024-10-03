@@ -56,8 +56,8 @@ test_text_frames(_) ->
     ws_client:send_text(Pid, Medium),
     {text, Medium} = ws_client:recv(Pid),
 
-    %% Now check that websocket_client:send is working
-    ok = websocket_client:send(Pid, {text, Medium}),
+    %% Now check that banana_websocket_client:send is working
+    ok = banana_websocket_client:send(Pid, {text, Medium}),
     {text, Medium} = ws_client:recv(Pid),
 
     %% Payload length greater than 65535
@@ -196,7 +196,7 @@ long_msg() ->
 %        16#9, % ping
 %        16#A  % pong
 %      ]).
-%noncontrol_opcode() -> 
+%noncontrol_opcode() ->
 %    oneof([
 %        16#0, % continuation
 %        16#1, % test frame
@@ -287,7 +287,7 @@ long_msg() ->
 %   %                          / %xB-F ; reserved for further control
 %   %                                  ; frames
 %   %                                  ; 4 bits in length
-%   %  
+%   %
 %   % frame-masked            = %x0
 %   %                         ; frame is not masked, no frame-masking-key
 %   %                         / %x1
