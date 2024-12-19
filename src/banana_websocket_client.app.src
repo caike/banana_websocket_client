@@ -1,6 +1,6 @@
 {application,banana_websocket_client,
              [{description,"Erlang websocket client"},
-              {vsn,"0.0.1"},
+              {vsn,"0.0.3"},
               {registered,[]},
               {applications,[kernel,stdlib,ssl,crypto,inets]},
               {env,[]},
