@@ -415,6 +415,13 @@ handshaking(info, {Trans, _Socket, Data},
                     erlang:send_after(KA, self(), keepalive),
                     handle_successful_handshake(Remaining, Context, HState1, KA);
                 {reconnect, Interval, HState1} ->
+                    % Close the current socket before attempting reconnection
+                    case websocket_req:socket(WSReq1) of
+                        undefined -> ok;
+                        Socket ->
+                            Transport = websocket_req:transport(WSReq1),
+                            _ = (Transport#transport.mod):close(Socket)
+                    end,
                     % Allows "bailing" from handshake and reconnecting if client
                     % determines that connection is not properly established.
                     {next_state, disconnected, Context#context{handler={Handler, HState1}},
