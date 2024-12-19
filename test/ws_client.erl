@@ -1,6 +1,6 @@
 -module(ws_client).
 
--behaviour(websocket_client).
+-behaviour(banana_websocket_client).
 
 -export([
          start_link/0,
@@ -37,10 +37,10 @@ start_link() ->
     {ok, _} = start_link("ws://localhost:8080").
 
 start_link(Url) ->
-    {ok, _} = websocket_client:start_link(Url, ?MODULE, [self()]).
+    {ok, _} = banana_websocket_client:start_link(Url, ?MODULE, [self()]).
 
 start_link(Url, KeepAlive) ->
-    {ok, _} = websocket_client:start_link(Url, ?MODULE, [self()], [{keepalive, KeepAlive}]).
+    {ok, _} = banana_websocket_client:start_link(Url, ?MODULE, [self()], [{keepalive, KeepAlive}]).
 
 stop(Pid) ->
     Pid ! stop.
@@ -56,22 +56,22 @@ socket(Pid, Timeout) ->
     end.
 
 send_text(Pid, Msg) ->
-    websocket_client:cast(Pid, {text, Msg}).
+    banana_websocket_client:cast(Pid, {text, Msg}).
 
 send_binary(Pid, Msg) ->
-    websocket_client:cast(Pid, {binary, Msg}).
+    banana_websocket_client:cast(Pid, {binary, Msg}).
 
 send_ping(Pid, Msg) ->
-    websocket_client:cast(Pid, {ping, Msg}).
+    banana_websocket_client:cast(Pid, {ping, Msg}).
 
 sync_send_text(Pid, Msg) ->
-    websocket_client:send(Pid, {text, Msg}).
+    banana_websocket_client:send(Pid, {text, Msg}).
 
 sync_send_binary(Pid, Msg) ->
-    websocket_client:send(Pid, {binary, Msg}).
+    banana_websocket_client:send(Pid, {binary, Msg}).
 
 sync_send_ping(Pid, Msg) ->
-    websocket_client:send(Pid, {ping, Msg}).
+    banana_websocket_client:send(Pid, {ping, Msg}).
 
 recv(Pid) ->
     recv(Pid, 5000).
